@@ -22,9 +22,27 @@ versione = sys.argv[1]
 note = sys.argv[2] if len(sys.argv) > 2 else ""
 
 subprocess.run([sys.executable, os.path.join(QUI, "build_oxt.py"), QUI], check=True)
+import zipfile
+
+
+def _contenuto(p):
+    """Contenuto dei file (non le date): se è uguale il pulsante non va reinstallato."""
+    try:
+        if p.endswith(".oxt"):
+            with zipfile.ZipFile(p) as z:
+                return sorted((i.filename, z.read(i)) for i in z.infolist())
+        with open(p, "rb") as fh:
+            return fh.read()
+    except OSError:
+        return None
+
+
 for f in ("StampaLetraTag.oxt", "icona.ico", "icona.png"):
-    shutil.copy2(os.path.join(QUI, f), os.path.join(PROG, f))
-    os.remove(os.path.join(QUI, f))
+    nuovo, vecchio = os.path.join(QUI, f), os.path.join(PROG, f)
+    if _contenuto(nuovo) != _contenuto(vecchio):
+        shutil.copy2(nuovo, vecchio)
+        print("aggiornato", f)
+    os.remove(nuovo)
 
 file = {}
 for n in sorted(os.listdir(PROG)):

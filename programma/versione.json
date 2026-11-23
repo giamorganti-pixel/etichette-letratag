@@ -1,13 +1,13 @@
 {
- "versione": "2.0.0",
- "note": "• Pulsante «Aggiorna»: gli aggiornamenti arrivano da internet, senza chiavetta.\n• Stili rapidi, tutti i caratteri del PC, emoji e simboli.\n• Corsivo, sottolineato, barrato, contorno, cornici, ripetizione per cavi, lunghezza fissa.\n• Elenchi, QR e codici a barre, preferiti e cronologia, calibrazione.",
+ "versione": "2.0.1",
+ "note": "• Prova di aggiornamento: la versione ora si vede nel titolo della finestra.\n• Nuove frasi pronte: Regalo e Medicine.",
  "file": {
   "LEGGIMI.txt": "1f495fdec353e5dd91913eece6323c9be8ab4691e51a7e6bd61ced7cc75d7bb3",
   "StampaLetraTag.oxt": "e88204b5cf2494a3adc11130f0cca710920041c8a996840635e71f532528c173",
   "aggiornamento.py": "04653483820fc2c7ce13bf60afbd968b9d6a7190aa78579fb67983071e48bad1",
   "disinstalla.pyw": "c313262cd4f6b28d89901858bd0c3157b6e3cdcfd355993079fccd23ebaa39a1",
   "etichetta.py": "5fe775b6f5866c82d2d17dccdee7dd7e95b8237be6bb056565fa09d877729d3b",
-  "etichette_letratag.py": "4f237b0e75d03c7c0db929cf23d6b0af62a6918a6fca20dc203f2780ed1d75ed",
+  "etichette_letratag.py": "ec737ced02be3f8af4fe47c1c97a4c9b897183355da3c5448387b754c8304a42",
   "icona.ico": "76c0eac2b30108219880b36f4ffc49af551f4121343437d83c75b0ad1e3489e9",
   "icona.png": "b3745a98937cd00ebc868f4dba9d5091a6cc638c7a1492ca07f1884c872a0923",
   "letratag_core.py": "97cec2cc7a7c98a3d70324ccd5268e4d5d1abd25dd53d1a14160696b7a17051b",

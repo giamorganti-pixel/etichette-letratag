@@ -38,6 +38,8 @@ FRASI = [
     ("Cavo / caricatore", "🔌 "),
     ("Dispensa", "🫙 "),
     ("Spezie", "🌿 "),
+    ("Regalo", "🎁 Per "),
+    ("Medicine", "💊 "),
 ]
 VARIABILI = [
     ("Data di oggi", "{data}"), ("Data tra 7 giorni", "{data+7}"),
@@ -137,7 +139,7 @@ class EmojiPicker(tk.Toplevel):
 class App:
     def __init__(self, root: tk.Tk):
         self.root = root
-        root.title(APP_TITLE)
+        root.title(f"{APP_TITLE}  —  versione {AGG.versione_locale().get('versione', '?')}")
         root.geometry("1120x860")
         root.minsize(900, 700)
 
