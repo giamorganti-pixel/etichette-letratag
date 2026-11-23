@@ -14,6 +14,20 @@ App per PC Windows che stampa etichette con la **DYMO LetraTag 200B** via Blueto
 - Pulsante «Stampa su LetraTag» dentro LibreOffice e OpenOffice
 - Pulsante **🔄 Aggiorna**: le nuove versioni arrivano da questo repository
 
+## Come è fatta
+
+![Scrivere un'etichetta](docs/screenshot/1-testo.png)
+
+**Esempi di etichette** (anteprime come escono sul nastro):
+
+![Esempi di etichette](docs/screenshot/0-esempi.png)
+
+| Elenco da stampare in serie | QR e codici a barre |
+|---|---|
+| ![Elenco](docs/screenshot/2-elenco.png) | ![Codici](docs/screenshot/3-codici.png) |
+| **Emoji e simboli** | **Preferiti e ultime stampate** |
+| ![Emoji](docs/screenshot/4-emoji.png) | ![Salvate](docs/screenshot/5-salvate.png) |
+
 ## Installazione
 
 1. Installa **Python** da [python.org/downloads](https://www.python.org/downloads/) (spunta *Add python.exe to PATH*). Nello ZIP c'è anche il collegamento **1 - SCARICA PRIMA PYTHON** che apre la stessa pagina.
