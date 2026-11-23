@@ -1,0 +1,7 @@
+dymo-bluetooth>=0.1.3
+bleak>=0.22
+pillow
+pypdfium2
+openpyxl
+qrcode
+python-barcode

@@ -1,0 +1,25 @@
+ETICHETTE LETRATAG 200B - per Windows 10/11
+===========================================
+
+INSTALLAZIONE (una volta sola)
+1. Se non hai Python: scaricalo da https://www.python.org/downloads/
+   e installalo (spunta "Add python.exe to PATH").
+2. Clic destro sullo ZIP > "Estrai tutto".
+3. Nella cartella estratta: doppio clic su INSTALLA.pyw e premi INSTALLA.
+4. Aspetta il messaggio "Installazione completata".
+
+USO
+- Accendi la LetraTag: l'app la trova da sola.
+- In LibreOffice/OpenOffice premi il pulsante giallo "Stampa su LetraTag":
+    Calc     seleziona le celle: ogni riga = un'etichetta
+    Writer   seleziona il testo = un'etichetta (senza selezione: ogni pagina)
+    Draw     ogni pagina = un'etichetta
+- Oppure doppio clic su "Etichette LetraTag" sul desktop e scrivi il testo.
+
+PROBLEMI
+- "Non trovo la LetraTag": accendila, avvicinala, chiudi l'app DYMO sul telefono.
+- Nastro bianco: cassetta mancante o inserita male.
+- INSTALLA.pyw si apre come testo: Python non e' installato (vedi punto 1).
+
+DISINSTALLARE
+  Windows+R  ->  %LOCALAPPDATA%\EtichetteLetraTag  ->  doppio clic su disinstalla.pyw
