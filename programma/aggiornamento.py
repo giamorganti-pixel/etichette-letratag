@@ -48,11 +48,26 @@ def _tupla(v: str):
     return tuple(out)
 
 
+def _ultimo_commit() -> str | None:
+    """Codice dell'ultima versione pubblicata (l'API di GitHub non ha la cache di 5 minuti)."""
+    try:
+        req = urllib.request.Request(f"https://api.github.com/repos/{REPO}/commits/{RAMO}",
+                                     headers={"User-Agent": "EtichetteLetraTag",
+                                              "Accept": "application/vnd.github.sha"})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            sha = r.read().decode("ascii").strip()
+        return sha if len(sha) == 40 and all(c in "0123456789abcdef" for c in sha) else None
+    except Exception:
+        return None
+
+
 def controlla() -> dict | None:
     """Restituisce il manifesto remoto se c'è una versione più nuova, altrimenti None."""
-    # il parametro evita copie vecchie nella cache di GitHub
+    sha = _ultimo_commit()
+    base = f"https://raw.githubusercontent.com/{REPO}/{sha}/programma/" if sha else BASE_URL
     import time
-    remoto = json.loads(_get(BASE_URL + "versione.json?t=" + str(int(time.time()))).decode("utf-8"))
+    remoto = json.loads(_get(base + "versione.json?t=" + str(int(time.time()))).decode("utf-8"))
+    remoto["_base"] = base  # tutti i file arrivano dalla stessa versione
     if _tupla(remoto.get("versione", "0")) > _tupla(versione_locale().get("versione", "0")):
         return remoto
     return None
@@ -102,7 +117,7 @@ def aggiorna(remoto: dict, log=print, chiedi_chiudi_office=None) -> list[str]:
         for n in da_scaricare:
             if "/" in n or "\\" in n or n.startswith("."):
                 raise RuntimeError(f"Nome file non valido nel manifesto: {n}")
-            data = _get(BASE_URL + n, timeout=60)
+            data = _get(remoto.get("_base", BASE_URL) + n, timeout=60)
             if _sha(data) != voluti[n]:
                 raise RuntimeError(f"Il file {n} è arrivato rovinato: riprova più tardi.")
             with open(os.path.join(tmp, n), "wb") as f:
@@ -132,7 +147,7 @@ def aggiorna(remoto: dict, log=print, chiedi_chiudi_office=None) -> list[str]:
                 log("OpenOffice è aperto: il pulsante si aggiorna da solo appena lo chiudi.")
         # 5. ricorda la versione installata
         with open(os.path.join(QUI, "versione.json"), "w", encoding="utf-8") as f:
-            json.dump(remoto, f, ensure_ascii=False, indent=1)
+            json.dump({k: v for k, v in remoto.items() if not k.startswith("_")}, f, ensure_ascii=False, indent=1)
         return da_scaricare
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

@@ -1,10 +1,10 @@
 {
- "versione": "2.0.1",
- "note": "• Prova di aggiornamento: la versione ora si vede nel titolo della finestra.\n• Nuove frasi pronte: Regalo e Medicine.",
+ "versione": "2.0.2",
+ "note": "• Gli aggiornamenti si vedono subito, senza aspettare qualche minuto.",
  "file": {
   "LEGGIMI.txt": "1f495fdec353e5dd91913eece6323c9be8ab4691e51a7e6bd61ced7cc75d7bb3",
   "StampaLetraTag.oxt": "e88204b5cf2494a3adc11130f0cca710920041c8a996840635e71f532528c173",
-  "aggiornamento.py": "04653483820fc2c7ce13bf60afbd968b9d6a7190aa78579fb67983071e48bad1",
+  "aggiornamento.py": "1f940a4b5d1a49b9f81011f6e55306f3e9a4b3708c1d8a2805b414e12ee122d1",
   "disinstalla.pyw": "c313262cd4f6b28d89901858bd0c3157b6e3cdcfd355993079fccd23ebaa39a1",
   "etichetta.py": "5fe775b6f5866c82d2d17dccdee7dd7e95b8237be6bb056565fa09d877729d3b",
   "etichette_letratag.py": "ec737ced02be3f8af4fe47c1c97a4c9b897183355da3c5448387b754c8304a42",
