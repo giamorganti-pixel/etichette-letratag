@@ -1,5 +1,9 @@
 # Etichette LetraTag
 
+> ### ⬇️ Prima di tutto: [scarica Python per Windows](https://www.python.org/downloads/)
+> Premi il pulsante giallo **Download Python** e installalo spuntando **Add python.exe to PATH**.
+> Poi scarica questa app con **Code ▸ Download ZIP** e fai doppio clic su **INSTALLA.pyw**.
+
 App per PC Windows che stampa etichette con la **DYMO LetraTag 200B** via Bluetooth, senza il telefono.
 
 - Testo con tutti i caratteri del PC, stili rapidi, emoji e simboli
@@ -12,7 +16,7 @@ App per PC Windows che stampa etichette con la **DYMO LetraTag 200B** via Blueto
 
 ## Installazione
 
-1. Installa **Python** da [python.org/downloads](https://www.python.org/downloads/) (spunta *Add python.exe to PATH*).
+1. Installa **Python** da [python.org/downloads](https://www.python.org/downloads/) (spunta *Add python.exe to PATH*). Nello ZIP c'è anche il collegamento **1 - SCARICA PRIMA PYTHON** che apre la stessa pagina.
 2. Su questa pagina premi **Code ▸ Download ZIP**, poi sul file scaricato clic destro ▸ **Estrai tutto**.
 3. Doppio clic su **INSTALLA.pyw** e premi **INSTALLA**.
 

@@ -145,7 +145,9 @@ class Installatore:
         # 1. Python
         self.scrivi("1/6  Controllo Python…")
         if sys.version_info < (3, 10):
-            raise RuntimeError("Serve Python 3.10 o più recente: scaricalo da python.org")
+            webbrowser.open("https://www.python.org/downloads/")
+            raise RuntimeError("Questo Python è troppo vecchio: serve la versione 3.10 o più recente.\n"
+                               "Ho aperto la pagina per scaricarlo: installalo e poi riapri INSTALLA.pyw")
         self.scrivi(f"     Python {sys.version.split()[0]} OK")
         self.passo(1)
 
