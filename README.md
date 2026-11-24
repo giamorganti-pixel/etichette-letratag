@@ -1,5 +1,9 @@
 # Etichette LetraTag
 
+🇮🇹 Italiano · 🇬🇧 [English below](#english)
+
+[![Download](https://img.shields.io/github/v/release/giamorganti-pixel/etichette-letratag?label=Scarica%20%2F%20Download)](https://github.com/giamorganti-pixel/etichette-letratag/releases/latest)
+
 > ### ⬇️ Prima di tutto: [scarica Python per Windows](https://www.python.org/downloads/)
 > Premi il pulsante giallo **Download Python** e installalo spuntando **Add python.exe to PATH**.
 > Poi scarica questa app con **Code ▸ Download ZIP** e fai doppio clic su **INSTALLA.pyw**.
@@ -31,7 +35,7 @@ App per PC Windows che stampa etichette con la **DYMO LetraTag 200B** via Blueto
 ## Installazione
 
 1. Installa **Python** da [python.org/downloads](https://www.python.org/downloads/) (spunta *Add python.exe to PATH*). Nello ZIP c'è anche il collegamento **1 - SCARICA PRIMA PYTHON** che apre la stessa pagina.
-2. Su questa pagina premi **Code ▸ Download ZIP**, poi sul file scaricato clic destro ▸ **Estrai tutto**.
+2. Scarica **EtichetteLetraTag.zip** dall'[ultima versione](https://github.com/giamorganti-pixel/etichette-letratag/releases/latest) (oppure **Code ▸ Download ZIP**), poi clic destro ▸ **Estrai tutto**.
 3. Doppio clic su **INSTALLA.pyw** e premi **INSTALLA**.
 
 Dopo, gli aggiornamenti si installano dall'app con il pulsante **🔄 Aggiorna**.
@@ -52,4 +56,42 @@ git commit -am "Versione 2.1.0" && git push
 ## Note
 
 La LetraTag 200B non ha driver per PC: l'app usa il protocollo Bluetooth ricostruito dalla
-libreria open source [dymo-bluetooth](https://github.com/ysfchn/dymo-bluetooth) (licenza MIT).
+libreria open source [dymo-bluetooth](https://github.com/ysfchn/dymo-bluetooth) di ysfchn (licenza MIT).
+
+Progetto indipendente, non affiliato né approvato da DYMO. DYMO e LetraTag sono marchi dei rispettivi proprietari.
+Licenza: [MIT](LICENSE).
+
+---
+
+## English
+
+**Print labels on a DYMO LetraTag 200B from a Windows PC over Bluetooth — no phone needed.**
+DYMO only offers a mobile app for this printer; this project adds a full desktop app.
+
+### Features
+- Any font installed on the PC, quick styles, emoji and symbols (converted to black & white for the thermal head)
+- Italic, underline, strikethrough, outline, inverted (white on black), frames
+- Automatic dates (`{data}`, `{data+30}`), counters (`{n}` → Box 01, 02…), repeated text for cable wraps, fixed length
+- Batch printing from a list or a spreadsheet (LibreOffice/OpenOffice Calc, Excel, CSV)
+- QR codes, Code128 and EAN-13 barcodes
+- Favourites and print history
+- A "Print to LetraTag" button inside LibreOffice and OpenOffice
+- One-click **Update** button: new versions are downloaded from this repository and verified with SHA-256
+
+The user interface is in Italian.
+
+### Install
+1. Install [Python 3.10+](https://www.python.org/downloads/) (tick *Add python.exe to PATH*).
+2. Download **EtichetteLetraTag.zip** from the [latest release](https://github.com/giamorganti-pixel/etichette-letratag/releases/latest) and extract it.
+3. Double-click **INSTALLA.pyw** and press **INSTALLA**.
+
+Turn the LetraTag on and close the DYMO app on your phone (the printer accepts one connection at a time).
+No Windows Bluetooth pairing is needed.
+
+### How it works
+The LetraTag 200B speaks Bluetooth Low Energy. The protocol was reverse-engineered by the
+[dymo-bluetooth](https://github.com/ysfchn/dymo-bluetooth) library (MIT), which this app uses through
+[bleak](https://github.com/hbldh/bleak). Labels are rendered with Pillow at the printer's 30-dot height.
+
+Independent project, not affiliated with or endorsed by DYMO. DYMO and LetraTag are trademarks of their respective owners.
+License: [MIT](LICENSE).
