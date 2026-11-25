@@ -5,6 +5,10 @@
 [![Scarica l'ultima versione](https://img.shields.io/github/v/release/giamorganti-pixel/etichette-letratag?label=Scarica%20%2F%20Download&style=for-the-badge&color=f5c400)](https://github.com/giamorganti-pixel/etichette-letratag/releases/latest)
 
 
+![Demo dell'interfaccia](docs/screenshot/demo.gif)
+
+*Demo dell'interfaccia: scrivi, scegli uno stile e vedi l'anteprima dell'etichetta.*
+
 > ### ⬇️ Prima di tutto: [scarica Python per Windows](https://www.python.org/downloads/)
 > Premi il pulsante giallo **Download Python** e installalo spuntando **Add python.exe to PATH**.
 > Poi scarica l'app dall'[ultima versione](https://github.com/giamorganti-pixel/etichette-letratag/releases/latest) (**Source code (zip)**) e fai doppio clic su **INSTALLA.pyw**.
