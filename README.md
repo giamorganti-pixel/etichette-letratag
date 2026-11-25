@@ -2,10 +2,12 @@
 
 🇮🇹 Italiano · 🇬🇧 [English below](#english)
 
+[![Scarica l'ultima versione](https://img.shields.io/github/v/release/giamorganti-pixel/etichette-letratag?label=Scarica%20%2F%20Download&style=for-the-badge&color=f5c400)](https://github.com/giamorganti-pixel/etichette-letratag/releases/latest)
+
 
 > ### ⬇️ Prima di tutto: [scarica Python per Windows](https://www.python.org/downloads/)
 > Premi il pulsante giallo **Download Python** e installalo spuntando **Add python.exe to PATH**.
-> Poi scarica questa app con **Code ▸ Download ZIP** e fai doppio clic su **INSTALLA.pyw**.
+> Poi scarica l'app dall'[ultima versione](https://github.com/giamorganti-pixel/etichette-letratag/releases/latest) (**Source code (zip)**) e fai doppio clic su **INSTALLA.pyw**.
 
 App per PC Windows che stampa etichette con la **DYMO LetraTag 200B** via Bluetooth, senza il telefono.
 
@@ -34,7 +36,7 @@ App per PC Windows che stampa etichette con la **DYMO LetraTag 200B** via Blueto
 ## Installazione
 
 1. Installa **Python** da [python.org/downloads](https://www.python.org/downloads/) (spunta *Add python.exe to PATH*). Nello ZIP c'è anche il collegamento **1 - SCARICA PRIMA PYTHON** che apre la stessa pagina.
-2. Su questa pagina premi **Code ▸ Download ZIP**, poi sul file scaricato clic destro ▸ **Estrai tutto**.
+2. Apri l'[ultima versione](https://github.com/giamorganti-pixel/etichette-letratag/releases/latest) e scarica **Source code (zip)** (oppure, da questa pagina, **Code ▸ Download ZIP**). Poi clic destro sul file ▸ **Estrai tutto**.
 3. Doppio clic su **INSTALLA.pyw** e premi **INSTALLA**.
 
 Dopo, gli aggiornamenti si installano dall'app con il pulsante **🔄 Aggiorna**.
@@ -81,7 +83,7 @@ The user interface is in Italian.
 
 ### Install
 1. Install [Python 3.10+](https://www.python.org/downloads/) (tick *Add python.exe to PATH*).
-2. On this page click **Code ▸ Download ZIP** and extract it.
+2. Download **Source code (zip)** from the [latest release](https://github.com/giamorganti-pixel/etichette-letratag/releases/latest) and extract it.
 3. Double-click **INSTALLA.pyw** and press **INSTALLA**.
 
 Turn the LetraTag on and close the DYMO app on your phone (the printer accepts one connection at a time).
