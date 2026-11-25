@@ -19,6 +19,8 @@ App per PC Windows che stampa etichette con la **DYMO LetraTag 200B** via Blueto
 - Pulsante «Stampa su LetraTag» dentro LibreOffice e OpenOffice
 - Pulsante **🔄 Aggiorna**: le nuove versioni arrivano da questo repository
 
+❤️ Ti è utile? Puoi offrirmi un caffè con [PayPal](https://paypal.me/GMorganti).
+
 ## Come è fatta
 
 ![Scrivere un'etichetta](docs/screenshot/1-testo.png)
@@ -93,6 +95,8 @@ No Windows Bluetooth pairing is needed.
 The LetraTag 200B speaks Bluetooth Low Energy. The protocol was reverse-engineered by the
 [dymo-bluetooth](https://github.com/ysfchn/dymo-bluetooth) library (MIT), which this app uses through
 [bleak](https://github.com/hbldh/bleak). Labels are rendered with Pillow at the printer's 30-dot height.
+
+❤️ Find it useful? You can support the project via [PayPal](https://paypal.me/GMorganti).
 
 Independent project, not affiliated with or endorsed by DYMO. DYMO and LetraTag are trademarks of their respective owners.
 License: [MIT](LICENSE).
