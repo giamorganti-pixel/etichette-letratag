@@ -15,7 +15,7 @@ TITOLO = "Installazione Etichette LetraTag"
 QUI = os.path.dirname(os.path.abspath(__file__))
 SORGENTE = os.path.join(QUI, "programma")
 DEST = os.path.join(os.environ.get("LOCALAPPDATA", os.path.expanduser("~")), "EtichetteLetraTag")
-FILE_APP = ["etichette_letratag.py", "letratag_core.py", "etichetta.py", "aggiornamento.py", "versione.json", "requirements.txt", "StampaLetraTag.oxt",
+FILE_APP = ["etichette_letratag.py", "letratag_core.py", "etichetta.py", "aggiornamento.py", "versione.json", "lingua.py", "requirements.txt", "StampaLetraTag.oxt",
             "icona.ico", "icona.png", "disinstalla.pyw", "LEGGIMI.txt"]
 NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 WIN = sys.platform == "win32"

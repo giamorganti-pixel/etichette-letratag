@@ -1,16 +1,18 @@
 {
- "versione": "2.0.2",
- "note": "• Gli aggiornamenti si vedono subito, senza aspettare qualche minuto.",
+ "versione": "2.1.0",
+ "note": "• Interfaccia in italiano o inglese: scegli la lingua dal menu 🌐 in alto (o in Impostazioni).\n• Variabili anche in inglese: {date}, {time}, {day}, {month}, {year}.",
+ "note_en": "• Italian or English interface: choose the language from the 🌐 menu at the top (or in Settings).\n• English placeholders: {date}, {time}, {day}, {month}, {year}.",
  "file": {
   "LEGGIMI.txt": "1f495fdec353e5dd91913eece6323c9be8ab4691e51a7e6bd61ced7cc75d7bb3",
   "StampaLetraTag.oxt": "e88204b5cf2494a3adc11130f0cca710920041c8a996840635e71f532528c173",
   "aggiornamento.py": "1f940a4b5d1a49b9f81011f6e55306f3e9a4b3708c1d8a2805b414e12ee122d1",
   "disinstalla.pyw": "c313262cd4f6b28d89901858bd0c3157b6e3cdcfd355993079fccd23ebaa39a1",
-  "etichetta.py": "5fe775b6f5866c82d2d17dccdee7dd7e95b8237be6bb056565fa09d877729d3b",
-  "etichette_letratag.py": "ec737ced02be3f8af4fe47c1c97a4c9b897183355da3c5448387b754c8304a42",
+  "etichetta.py": "6d435a0d83b34b9641ca8439d710de019724beab2cb40067fd1288929bc5d0a2",
+  "etichette_letratag.py": "e8cea72c71bce05f045ffeda894f2f9902cece322a2b9126ef7283e7eb0f5b58",
   "icona.ico": "76c0eac2b30108219880b36f4ffc49af551f4121343437d83c75b0ad1e3489e9",
   "icona.png": "b3745a98937cd00ebc868f4dba9d5091a6cc638c7a1492ca07f1884c872a0923",
   "letratag_core.py": "97cec2cc7a7c98a3d70324ccd5268e4d5d1abd25dd53d1a14160696b7a17051b",
+  "lingua.py": "c168d3efc04660a3468ded920a993ced423649e8bb3dc8ff417fdad5aa8f7c5a",
   "requirements.txt": "c298bc287d3024a3e09244ae3cccd6d3ef9f055690ea643e1b16251b622bc737"
  }
 }

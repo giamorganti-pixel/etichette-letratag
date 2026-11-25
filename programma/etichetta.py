@@ -219,7 +219,20 @@ _FRAME_PAD = {"Nessuna": 0, "Sottile": 3, "Spessa": 4, "Arrotondata": 4, "Doppia
 MESI = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto",
         "settembre", "ottobre", "novembre", "dicembre"]
 GIORNI = ["lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato", "domenica"]
-_VAR = re.compile(r"\{(data|ora|n|giorno|mese|anno|dataesteso)([+-]\d+)?\}", re.I)
+_VAR = re.compile(r"\{(data|date|ora|time|n|giorno|day|mese|month|anno|year|dataesteso|longdate)([+-]\d+)?\}",
+                  re.I)
+_ALIAS = {"date": "data", "time": "ora", "day": "giorno", "month": "mese", "year": "anno", "longdate": "dataesteso"}
+MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
+          "November", "December"]
+DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+
+def _en() -> bool:
+    try:
+        import lingua
+        return lingua.LANG == "en"
+    except Exception:
+        return False
 
 
 def has_counter(text: str) -> bool:
@@ -231,19 +244,21 @@ def expand(text: str, n: int = 1, digits: int = 0, now: Optional[_dt.datetime] =
 
     def rep(m):
         k, off = m.group(1).lower(), int(m.group(2) or 0)
+        k = _ALIAS.get(k, k)
+        en = _en()
         d = now + _dt.timedelta(days=off)
         if k == "data":
             return d.strftime("%d/%m/%Y")
         if k == "dataesteso":
-            return f"{d.day} {MESI[d.month - 1]} {d.year}"
+            return f"{d.day} {MONTHS[d.month - 1]} {d.year}" if en else f"{d.day} {MESI[d.month - 1]} {d.year}"
         if k == "ora":
             return now.strftime("%H:%M")
         if k == "n":
             return str(n).zfill(digits) if digits else str(n)
         if k == "giorno":
-            return GIORNI[d.weekday()]
+            return DAYS[d.weekday()] if en else GIORNI[d.weekday()]
         if k == "mese":
-            return MESI[d.month - 1]
+            return MONTHS[d.month - 1] if en else MESI[d.month - 1]
         if k == "anno":
             return str(d.year)
         return m.group(0)

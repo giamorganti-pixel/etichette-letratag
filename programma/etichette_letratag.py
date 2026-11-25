@@ -20,6 +20,8 @@ from tkinter import filedialog, messagebox, simpledialog, ttk
 from PIL import Image, ImageOps, ImageTk
 
 import aggiornamento as AGG
+import lingua
+from lingua import T, TK, V
 import etichetta as E
 import letratag_core as core
 
@@ -85,18 +87,18 @@ class EmojiPicker(tk.Toplevel):
     def __init__(self, app: "App"):
         super().__init__(app.root)
         self.app = app
-        self.title("Emoji e simboli")
+        self.title(T("Emoji e simboli"))
         self.geometry("560x420")
         self.transient(app.root)
         self.photos = []
-        ttk.Label(self, text="Clicca per inserire nel testo. Puoi anche scriverle con Win + . (punto)").pack(
+        ttk.Label(self, text=T("Clicca per inserire nel testo. Puoi anche scriverle con Win + . (punto)")).pack(
             anchor="w", padx=8, pady=(6, 2))
         self.nb = ttk.Notebook(self)
         self.nb.pack(fill="both", expand=True, padx=6, pady=6)
         self.frames = {}
         for cat in E.EMOJI_CATEGORIES:
             fr = ttk.Frame(self.nb)
-            self.nb.add(fr, text=cat)
+            self.nb.add(fr, text=T(cat))
             self.frames[str(fr)] = (cat, fr, False)
         self.nb.bind("<<NotebookTabChanged>>", self._fill)
         self.protocol("WM_DELETE_WINDOW", self._close)
@@ -139,7 +141,7 @@ class EmojiPicker(tk.Toplevel):
 class App:
     def __init__(self, root: tk.Tk):
         self.root = root
-        root.title(f"{APP_TITLE}  —  versione {AGG.versione_locale().get('versione', '?')}")
+        root.title(f"{APP_TITLE}  —  " + T("versione {v}").format(v=AGG.versione_locale().get('versione', '?')))
         root.geometry("1120x860")
         root.minsize(900, 700)
 
@@ -238,18 +240,17 @@ class App:
         def done(res, err):
             if err is not None:
                 if not silent:
-                    messagebox.showwarning(APP_TITLE, f"Non riesco a controllare gli aggiornamenti.\n"
-                                                      f"Sei collegato a internet?\n\n{err}")
+                    messagebox.showwarning(APP_TITLE, T("Non riesco a controllare gli aggiornamenti.\nSei collegato a internet?\n\n{e}").format(e=err))
                 return
             self.remote_update = res
             if res:
                 v = res.get("versione", "?")
-                self.btn_update.configure(text=f"🔔 Aggiorna alla {v}")
+                self.btn_update.configure(text=T("🔔 Aggiorna alla {v}").format(v=v))
                 if silent and not self.busy:
-                    self.banner(f"🔔 È disponibile la versione {v}: premi «Aggiorna» in alto a destra.", "info")
+                    self.banner(T("🔔 È disponibile la versione {v}: premi «Aggiorna» in alto a destra.").format(v=v), "info")
             elif not silent:
-                messagebox.showinfo(APP_TITLE, "Hai già l'ultima versione "
-                                    f"({AGG.versione_locale().get('versione', '?')}).")
+                messagebox.showinfo(APP_TITLE, T("Hai già l'ultima versione ({v}).").format(
+                    v=AGG.versione_locale().get('versione', '?')))
             if then:
                 then()
 
@@ -257,35 +258,35 @@ class App:
 
     def update_clicked(self):
         if self.busy or self.updating:
-            messagebox.showinfo(APP_TITLE, "Aspetta che finisca la stampa, poi riprova.")
+            messagebox.showinfo(APP_TITLE, T("Aspetta che finisca la stampa, poi riprova."))
             return
         if not self.remote_update:
             self.check_updates(silent=False, then=lambda: self.remote_update and self.update_clicked())
             return
         r = self.remote_update
-        note = r.get("note", "").strip()
-        if not messagebox.askyesno(APP_TITLE, f"Aggiornare alla versione {r.get('versione')}?\n\n"
-                                   + (f"Novità:\n{note}\n\n" if note else "")
-                                   + "L'app si riavvia da sola alla fine."):
+        note = ((r.get("note_en") if lingua.LANG == "en" else "") or r.get("note", "")).strip()
+        if not messagebox.askyesno(APP_TITLE, T("Aggiornare alla versione {v}?\n\n").format(v=r.get('versione'))
+                                   + (T("Novità:\n{n}\n\n").format(n=note) if note else "")
+                                   + T("L'app si riavvia da sola alla fine.")):
             return
         self.updating = True
-        self.btn_update.configure(state="disabled", text="Aggiorno…")
+        self.btn_update.configure(state="disabled", text=T("Aggiorno…"))
         self.btn_print.configure(state="disabled")
-        self.banner("⬇ Scarico l'aggiornamento…", "info")
+        self.banner(T("⬇ Scarico l'aggiornamento…"), "info")
 
         def chiudi_office():
             ev = threading.Event()
 
             def ask():
-                messagebox.showinfo(APP_TITLE, "Per aggiornare anche il pulsante di OpenOffice, chiudi "
-                                    "OpenOffice/LibreOffice (tutte le finestre) e premi OK.")
+                messagebox.showinfo(APP_TITLE, T("Per aggiornare anche il pulsante di OpenOffice, chiudi "
+                                    "OpenOffice/LibreOffice (tutte le finestre) e premi OK."))
                 ev.set()
             self.root.after(0, ask)
             ev.wait()
 
         def work():
             try:
-                AGG.aggiorna(r, log=lambda m: self.root.after(0, lambda: self.log(m)),
+                AGG.aggiorna(r, log=lambda m: self.root.after(0, lambda: self.log(T(m))),
                              chiedi_chiudi_office=chiudi_office)
                 self.root.after(0, finished)
             except Exception as e:  # noqa: BLE001
@@ -293,7 +294,7 @@ class App:
                 self.root.after(0, lambda: failed(err))
 
         def finished():
-            self.banner("✅ Aggiornata! Riavvio l'app…", "ok")
+            self.banner(T("✅ Aggiornata! Riavvio l'app…"), "ok")
             self._save_settings()
             try:
                 os.remove(os.path.join(self.qdir, HEARTBEAT))
@@ -302,7 +303,7 @@ class App:
             try:
                 AGG.riavvia()
             except Exception as e:  # noqa: BLE001
-                messagebox.showinfo(APP_TITLE, f"Aggiornata. Riaprila dall'icona sul desktop.\n({e})")
+                messagebox.showinfo(APP_TITLE, T("Aggiornata. Riaprila dall'icona sul desktop.\n({e})").format(e=e))
             try:
                 self.runner.submit(self.ble.disconnect()).result(timeout=3)
             except Exception:
@@ -311,10 +312,10 @@ class App:
 
         def failed(e):
             self.updating = False
-            self.btn_update.configure(state="normal", text="🔄 Aggiorna")
+            self.btn_update.configure(state="normal", text=T("🔄 Aggiorna"))
             self.btn_print.configure(state="normal")
-            self.banner(f"⚠ Aggiornamento non riuscito: {e}", "err")
-            self.log(f"Aggiornamento non riuscito: {e}")
+            self.banner(T("⚠ Aggiornamento non riuscito: {e}").format(e=e), "err")
+            self.log(T("Aggiornamento non riuscito: {e}").format(e=e))
 
         threading.Thread(target=work, daemon=True).start()
 
@@ -323,7 +324,7 @@ class App:
         if os.path.exists(os.path.join(AGG.QUI, AGG.IN_SOSPESO)):
             def work():
                 if AGG.installa_oxt_in_sospeso():
-                    self.root.after(0, lambda: self.log("Pulsante di OpenOffice aggiornato."))
+                    self.root.after(0, lambda: self.log(T("Pulsante di OpenOffice aggiornato.")))
             threading.Thread(target=work, daemon=True).start()
             self.root.after(60000, self._pending_button)
 
@@ -339,7 +340,7 @@ class App:
         E.set_registry(reg)
         self.all_fonts = E.font_names()
         self.cmb_font.configure(values=self.all_fonts)
-        self.log(f"Caratteri disponibili: {len(self.all_fonts)}")
+        self.log(T("Caratteri disponibili: {n}").format(n=len(self.all_fonts)))
         self._schedule_preview()
 
     def _filter_fonts(self, _e=None):
@@ -357,19 +358,21 @@ class App:
         self.root.bind("<Configure>", lambda e: self.lbl_banner.configure(
             wraplength=max(300, self.root.winfo_width() - 40)))
 
-        top = ttk.LabelFrame(self.root, text="Stampante")
+        top = ttk.LabelFrame(self.root, text=T("Stampante"))
         top.pack(fill="x", **pad)
-        self.btn_scan = ttk.Button(top, text="🔍 Cerca", command=self.scan)
+        self.btn_scan = ttk.Button(top, text=T("🔍 Cerca"), command=self.scan)
         self.btn_scan.pack(side="left", **pad)
         self.cmb_dev = ttk.Combobox(top, state="readonly", width=34)
         self.cmb_dev.pack(side="left", **pad)
-        self.btn_conn = ttk.Button(top, text="Connetti", command=self.toggle_connect)
+        self.btn_conn = ttk.Button(top, text=T("Connetti"), command=self.toggle_connect)
         self.btn_conn.pack(side="left", **pad)
-        self.lbl_status = ttk.Label(top, text="● Non collegata", foreground="#b00")
+        self.lbl_status = ttk.Label(top, text=T("● Non collegata"), foreground="#b00")
         self.lbl_status.pack(side="left", **pad)
-        self.btn_update = ttk.Button(top, text="🔄 Aggiorna", command=self.update_clicked)
+        self.btn_update = ttk.Button(top, text=T("🔄 Aggiorna"), command=self.update_clicked)
         self.btn_update.pack(side="right", **pad)
-        self.lbl_version = ttk.Label(top, text=f"versione {AGG.versione_locale().get('versione', '?')}",
+        self._language_menu(top).pack(side="right", **pad)
+        ttk.Label(top, text="🌐").pack(side="right")
+        self.lbl_version = ttk.Label(top, text=T("versione {v}").format(v=AGG.versione_locale().get('versione', '?')),
                                      foreground="#666")
         self.lbl_version.pack(side="right", **pad)
 
@@ -387,20 +390,19 @@ class App:
         self._style_panel()
         self._print_panel()
 
-        pv = ttk.LabelFrame(self.root, text="Anteprima")
+        pv = ttk.LabelFrame(self.root, text=T("Anteprima"))
         pv.pack(fill="x", **pad)
         row = ttk.Frame(pv)
         row.pack(fill="x")
-        self.btn_prev = ttk.Button(row, text="◀", width=3, command=lambda: self._step_preview(-1))
+        self.btn_prev = ttk.Button(row, text=T("◀"), width=3, command=lambda: self._step_preview(-1))
         self.btn_prev.pack(side="left", padx=4)
         self.lbl_pv = ttk.Label(row, text="")
         self.lbl_pv.pack(side="left")
-        self.btn_next = ttk.Button(row, text="▶", width=3, command=lambda: self._step_preview(1))
+        self.btn_next = ttk.Button(row, text=T("▶"), width=3, command=lambda: self._step_preview(1))
         self.btn_next.pack(side="left", padx=4)
-        ttk.Label(row, text="   Colore nastro (solo anteprima)").pack(side="left")
+        ttk.Label(row, text=T("   Colore nastro (solo anteprima)")).pack(side="left")
         self.var_tape = tk.StringVar(value="Bianco")
-        ttk.Combobox(row, textvariable=self.var_tape, values=list(TAPE_COLORS), width=11,
-                     state="readonly").pack(side="left", padx=4)
+        self._combo(row, self.var_tape, list(TAPE_COLORS), 11).pack(side="left", padx=4)
         self.var_tape.trace_add("write", lambda *a: self._schedule_preview())
         self.pv_canvas = tk.Canvas(pv, height=PREVIEW_SCALE * E.H + 26, bg="#e8e8e8", highlightthickness=0)
         hs = ttk.Scrollbar(pv, orient="horizontal", command=self.pv_canvas.xview)
@@ -410,25 +412,69 @@ class App:
 
         self.txt_log = tk.Text(self.root, height=3, state="disabled", bg="#fafafa", font=("Consolas", 9))
         self.txt_log.pack(fill="x", **pad)
-        self.log("Pronto. Accendi la LetraTag: l'app la cerca da sola.")
+        self.log(T("Pronto. Accendi la LetraTag: l'app la cerca da sola."))
+
+    def _combo(self, parent, var, options, width):
+        """Menu a tendina che mostra i valori tradotti ma salva quelli originali."""
+        shown = tk.StringVar(value=T(var.get()) if var.get() else "")
+        cb = ttk.Combobox(parent, textvariable=shown, values=[T(o) for o in options], state="readonly", width=width)
+
+        def picked(_e=None):
+            i = cb.current()
+            if 0 <= i < len(options):
+                var.set(options[i])
+        cb.bind("<<ComboboxSelected>>", picked)
+        var.trace_add("write", lambda *a: shown.set(T(var.get())))
+        return cb
+
+    def _language_menu(self, parent):
+        codes = list(lingua.LINGUE)
+        cb = ttk.Combobox(parent, values=[lingua.LINGUE[c] for c in codes], state="readonly", width=12)
+        cb.current(codes.index(lingua.LANG))
+
+        def picked(_e=None):
+            new = codes[cb.current()]
+            if new != lingua.LANG:
+                self.change_language(new)
+        cb.bind("<<ComboboxSelected>>", picked)
+        return cb
+
+    def change_language(self, code):
+        if self.busy or getattr(self, "updating", False):
+            return
+        lingua.LANG = code
+        self._save_settings()
+        try:
+            os.remove(os.path.join(self.qdir, HEARTBEAT))
+        except OSError:
+            pass
+        try:
+            AGG.riavvia()
+        except Exception:
+            pass
+        try:
+            self.runner.submit(self.ble.disconnect()).result(timeout=3)
+        except Exception:
+            pass
+        self.root.after(300, self.root.destroy)
 
     # ---------------------------------------------------- barra comune
     def _text_tools(self, parent, text_widget_getter, extra=None):
         bar = ttk.Frame(parent)
         bar.pack(fill="x", padx=8, pady=(6, 2))
-        ttk.Button(bar, text="😀 Emoji e simboli", command=self.open_picker).pack(side="left")
-        mb = ttk.Menubutton(bar, text="📅 Inserisci")
+        ttk.Button(bar, text=T("😀 Emoji e simboli"), command=self.open_picker).pack(side="left")
+        mb = ttk.Menubutton(bar, text=T("📅 Inserisci"))
         menu = tk.Menu(mb, tearoff=0)
         for label, val in VARIABILI:
-            menu.add_command(label=f"{label}   {val}", command=lambda v=val: self.insert_text(v))
+            menu.add_command(label=f"{T(label)}   {V(val)}", command=lambda v=val: self.insert_text(V(v)))
         menu.add_separator()
         sub = tk.Menu(menu, tearoff=0)
         for label, val in FRASI:
-            sub.add_command(label=label, command=lambda v=val: self.insert_text(v))
-        menu.add_cascade(label="Frasi pronte", menu=sub)
+            sub.add_command(label=T(label), command=lambda v=val: self.insert_text(V(v)))
+        menu.add_cascade(label=T("Frasi pronte"), menu=sub)
         mb["menu"] = menu
         mb.pack(side="left", padx=6)
-        ttk.Button(bar, text="🧹 Pulisci", command=lambda: (text_widget_getter().delete("1.0", "end"),
+        ttk.Button(bar, text=T("🧹 Pulisci"), command=lambda: (text_widget_getter().delete("1.0", "end"),
                                                           self._schedule_preview())).pack(side="left")
         if extra:
             extra(bar)
@@ -436,16 +482,15 @@ class App:
 
     def _tab_text(self):
         f = ttk.Frame(self.nb)
-        self.nb.add(f, text="  ✏️ Testo  ")
+        self.nb.add(f, text=T("  ✏️ Testo  "))
         self._text_tools(f, lambda: self.txt_input, extra=lambda bar: ttk.Button(
-            bar, text="⭐ Salva nei preferiti", command=self.save_favorite).pack(side="right"))
+            bar, text=T("⭐ Salva nei preferiti"), command=self.save_favorite).pack(side="right"))
         self.txt_input = tk.Text(f, height=3, font=("Segoe UI", 15), undo=True, wrap="none")
         self.txt_input.pack(fill="both", expand=True, padx=8, pady=4)
         self.txt_input.insert("1.0", "LETRATAG")
         self.txt_input.bind("<<Modified>>", lambda e: self._on_mod(self.txt_input))
         self.txt_input.bind("<FocusIn>", lambda e: setattr(self, "active_text", self.txt_input))
-        ttk.Label(f, foreground="#555", text="Invio = nuova riga (max 2-3 righe). Le parti tra { } "
-                  "vengono riempite in stampa: {data}, {n}…").pack(anchor="w", padx=8, pady=(0, 4))
+        ttk.Label(f, foreground="#555", text=T("Invio = nuova riga (max 2-3 righe). Le parti tra { } vengono riempite in stampa: {data}, {n}…")).pack(anchor="w", padx=8, pady=(0, 4))
 
     def _on_mod(self, w):
         if w.edit_modified():
@@ -454,11 +499,11 @@ class App:
 
     def _tab_list(self):
         f = ttk.Frame(self.nb)
-        self.nb.add(f, text="  📋 Elenco  ")
+        self.nb.add(f, text=T("  📋 Elenco  "))
 
         def extra(bar):
-            ttk.Button(bar, text="📂 Importa da Calc/Excel/CSV…", command=self.import_list).pack(side="left", padx=6)
-            ttk.Button(bar, text="📋 Incolla", command=self.paste_list).pack(side="left")
+            ttk.Button(bar, text=T("📂 Importa da Calc/Excel/CSV…"), command=self.import_list).pack(side="left", padx=6)
+            ttk.Button(bar, text=T("📋 Incolla"), command=self.paste_list).pack(side="left")
         self._text_tools(f, lambda: self.txt_list, extra)
         self.txt_list = tk.Text(f, height=5, font=("Segoe UI", 12), undo=True, wrap="none")
         self.txt_list.pack(fill="both", expand=True, padx=8, pady=4)
@@ -470,62 +515,62 @@ class App:
 
     def _tab_codes(self):
         f = ttk.Frame(self.nb)
-        self.nb.add(f, text="  ▦ QR e codici a barre  ")
+        self.nb.add(f, text=T("  ▦ QR e codici a barre  "))
         g = ttk.Frame(f)
         g.pack(fill="x", padx=8, pady=8)
-        ttk.Label(g, text="Tipo").grid(row=0, column=0, sticky="w")
+        ttk.Label(g, text=T("Tipo")).grid(row=0, column=0, sticky="w")
         self.var_code = tk.StringVar(value="QR code")
         ttk.Combobox(g, textvariable=self.var_code, values=E.CODE_TYPES, state="readonly",
                      width=12).grid(row=0, column=1, sticky="w", padx=6)
-        ttk.Label(g, text="Barre larghe").grid(row=0, column=2, sticky="e")
+        ttk.Label(g, text=T("Barre larghe")).grid(row=0, column=2, sticky="e")
         self.var_module = tk.IntVar(value=2)
         ttk.Spinbox(g, from_=1, to=4, width=3, textvariable=self.var_module).grid(row=0, column=3, sticky="w", padx=6)
-        ttk.Label(g, text="Contenuto").grid(row=1, column=0, sticky="w", pady=4)
+        ttk.Label(g, text=T("Contenuto")).grid(row=1, column=0, sticky="w", pady=4)
         self.var_code_data = tk.StringVar(value="https://www.dymo.com")
         ttk.Entry(g, textvariable=self.var_code_data, width=60).grid(row=1, column=1, columnspan=3, sticky="we", padx=6)
-        ttk.Label(g, text="Testo accanto").grid(row=2, column=0, sticky="w")
+        ttk.Label(g, text=T("Testo accanto")).grid(row=2, column=0, sticky="w")
         self.var_code_text = tk.StringVar(value="Sito DYMO")
         ttk.Entry(g, textvariable=self.var_code_text, width=60).grid(row=2, column=1, columnspan=3, sticky="we", padx=6)
-        ttk.Label(f, foreground="#555", justify="left", text=(
+        ttk.Label(f, foreground="#555", justify="left", text=TK("QR_NOTA", (
             "Il nastro è alto 30 punti: il QR esce piccolo (circa 4 mm) e va bene solo per testi brevi "
             "(max ~25 caratteri). Prova a leggerlo col telefono prima di stamparne tanti.\n"
-            "Code128 = lettere e numeri; EAN-13 = 12 cifre (la tredicesima la calcola da solo).")
+            "Code128 = lettere e numeri; EAN-13 = 12 cifre (la tredicesima la calcola da solo)."))
         ).pack(anchor="w", padx=8)
         for v in (self.var_code, self.var_module, self.var_code_data, self.var_code_text):
             v.trace_add("write", lambda *a: self._schedule_preview())
 
     def _tab_file(self):
         f = ttk.Frame(self.nb)
-        self.nb.add(f, text="  🖼 Immagine / PDF  ")
+        self.nb.add(f, text=T("  🖼 Immagine / PDF  "))
         row = ttk.Frame(f)
         row.pack(fill="x", padx=8, pady=8)
-        ttk.Button(row, text="📂 Apri PDF o immagine…", command=self.open_image).pack(side="left")
-        ttk.Label(row, text="Pagina").pack(side="left", padx=(12, 2))
+        ttk.Button(row, text=T("📂 Apri PDF o immagine…"), command=self.open_image).pack(side="left")
+        ttk.Label(row, text=T("Pagina")).pack(side="left", padx=(12, 2))
         self.var_page = tk.IntVar(value=1)
         self.spn_page = ttk.Spinbox(row, from_=1, to=1, width=4, textvariable=self.var_page)
         self.spn_page.pack(side="left")
-        ttk.Label(row, text="Ruota").pack(side="left", padx=(12, 2))
+        ttk.Label(row, text=T("Ruota")).pack(side="left", padx=(12, 2))
         self.var_rot = tk.StringVar(value="0")
         ttk.Combobox(row, textvariable=self.var_rot, state="readonly", width=4,
                      values=["0", "90", "180", "270"]).pack(side="left")
         self.var_dither = tk.BooleanVar(value=False)
-        ttk.Checkbutton(row, text="Retinatura (foto)", variable=self.var_dither).pack(side="left", padx=10)
-        ttk.Label(row, text="Soglia").pack(side="left")
+        ttk.Checkbutton(row, text=T("Retinatura (foto)"), variable=self.var_dither).pack(side="left", padx=10)
+        ttk.Label(row, text=T("Soglia")).pack(side="left")
         self.var_thr = tk.IntVar(value=160)
         ttk.Scale(row, from_=40, to=230, variable=self.var_thr, length=120,
                   command=lambda e: self._schedule_preview()).pack(side="left")
-        self.lbl_file = ttk.Label(f, text="Loghi, disegni, foto o un PDF: vengono adattati all'altezza del nastro.")
+        self.lbl_file = ttk.Label(f, text=T("Loghi, disegni, foto o un PDF: vengono adattati all'altezza del nastro."))
         self.lbl_file.pack(anchor="w", padx=8)
         for v in (self.var_page, self.var_rot, self.var_dither):
             v.trace_add("write", lambda *a: self._schedule_preview())
 
     def _tab_saved(self):
         f = ttk.Frame(self.nb)
-        self.nb.add(f, text="  ⭐ Salvate  ")
+        self.nb.add(f, text=T("  ⭐ Salvate  "))
         cols = ttk.Frame(f)
         cols.pack(fill="both", expand=True, padx=8, pady=6)
         for i, (title, attr) in enumerate((("⭐ Preferiti", "lst_fav"), ("🕘 Ultime stampate", "lst_hist"))):
-            fr = ttk.LabelFrame(cols, text=title)
+            fr = ttk.LabelFrame(cols, text=T(title))
             fr.grid(row=0, column=i, sticky="nsew", padx=4)
             cols.columnconfigure(i, weight=1)
             lb = tk.Listbox(fr, height=6, font=("Segoe UI", 11), activestyle="none")
@@ -534,62 +579,66 @@ class App:
             bb = ttk.Frame(fr)
             bb.pack(fill="x", padx=4, pady=(0, 4))
             src = "fav" if i == 0 else "hist"
-            ttk.Button(bb, text="Apri", command=lambda s=src: self.load_saved(s)).pack(side="left")
-            ttk.Button(bb, text="🖨 Stampa", command=lambda s=src: self.load_saved(s, stampa=True)).pack(side="left", padx=4)
-            ttk.Button(bb, text="🗑 Elimina", command=lambda s=src: self.delete_saved(s)).pack(side="left")
+            ttk.Button(bb, text=T("Apri"), command=lambda s=src: self.load_saved(s)).pack(side="left")
+            ttk.Button(bb, text=T("🖨 Stampa"), command=lambda s=src: self.load_saved(s, stampa=True)).pack(side="left", padx=4)
+            ttk.Button(bb, text=T("🗑 Elimina"), command=lambda s=src: self.delete_saved(s)).pack(side="left")
             lb.bind("<Double-Button-1>", lambda e, s=src: self.load_saved(s))
         cols.rowconfigure(0, weight=1)
         self._refresh_saved()
 
     def _tab_settings(self):
         f = ttk.Frame(self.nb)
-        self.nb.add(f, text="  ⚙ Impostazioni  ")
+        self.nb.add(f, text=T("  ⚙ Impostazioni  "))
         g = ttk.Frame(f)
         g.pack(fill="x", padx=10, pady=10)
-        ttk.Label(g, text="Punti per millimetro (calibrazione lunghezza)").grid(row=0, column=0, sticky="w")
+        ttk.Label(g, text=T("Punti per millimetro (calibrazione lunghezza)")).grid(row=0, column=0, sticky="w")
         self.var_dots = tk.StringVar(value="7.87")
         ttk.Entry(g, textvariable=self.var_dots, width=7).grid(row=0, column=1, sticky="w", padx=6)
-        ttk.Button(g, text="Calibra…", command=self.calibrate).grid(row=0, column=2, sticky="w")
-        ttk.Label(g, foreground="#555", text="Stampa un'etichetta, misurala col righello e premi Calibra: "
-                  "le lunghezze in mm diventano precise.").grid(row=1, column=0, columnspan=4, sticky="w")
+        ttk.Button(g, text=T("Calibra…"), command=self.calibrate).grid(row=0, column=2, sticky="w")
+        ttk.Label(g, text="🌐 " + T("Lingua")).grid(row=2, column=0, sticky="w", pady=(10, 0))
+        self._language_menu(g).grid(row=2, column=1, columnspan=2, sticky="w", padx=6, pady=(10, 0))
+        ttk.Label(g, foreground="#555", text=TK("LINGUA_NOTA", "Per cambiare lingua l'app si riavvia.")).grid(
+            row=3, column=0, columnspan=4, sticky="w")
+        ttk.Label(g, foreground="#555", text=T("Stampa un'etichetta, misurala col righello e premi Calibra: le lunghezze in mm diventano precise.")).grid(row=1, column=0, columnspan=4, sticky="w")
         ttk.Separator(f).pack(fill="x", padx=10, pady=6)
-        ttk.Label(f, justify="left", text=(
+        ttk.Label(f, justify="left", text=TK("OFFICE_NOTA", (
             "LibreOffice / OpenOffice: il pulsante giallo «Stampa su LetraTag» manda all'app le celle o il testo "
-            "selezionati,\ne li stampa con lo stile scelto qui.")).pack(anchor="w", padx=10)
-        ttk.Button(f, text="Apri cartella dei dati", command=lambda: self._open_folder(core.base_dir())).pack(
+            "selezionati,\ne li stampa con lo stile scelto qui."))).pack(anchor="w", padx=10)
+        ttk.Button(f, text=T("Apri cartella dei dati"), command=lambda: self._open_folder(core.base_dir())).pack(
             anchor="w", padx=10, pady=6)
         ttk.Separator(f).pack(fill="x", padx=10, pady=6)
         v = AGG.versione_locale()
-        ttk.Label(f, text=f"Versione installata: {v.get('versione', '?')}   ·   aggiornamenti da "
-                  f"github.com/{AGG.REPO}").pack(anchor="w", padx=10)
-        if v.get("note"):
-            ttk.Label(f, foreground="#555", justify="left", text="Novità di questa versione:\n" + v["note"]).pack(
+        ttk.Label(f, text=T("Versione installata: {v}   ·   aggiornamenti da {r}").format(
+            v=v.get('versione', '?'), r=f"github.com/{AGG.REPO}")).pack(anchor="w", padx=10)
+        nota = (v.get("note_en") if lingua.LANG == "en" else None) or v.get("note")
+        if nota:
+            ttk.Label(f, foreground="#555", justify="left", text=T("Novità di questa versione:") + "\n" + nota).pack(
                 anchor="w", padx=10, pady=4)
-        ttk.Button(f, text="🔄 Controlla aggiornamenti", command=self.update_clicked).pack(anchor="w", padx=10, pady=4)
+        ttk.Button(f, text=T("🔄 Controlla aggiornamenti"), command=self.update_clicked).pack(anchor="w", padx=10, pady=4)
         self.var_dots.trace_add("write", lambda *a: self._schedule_preview())
 
     # ----------------------------------------------------------- stile
     def _style_panel(self):
-        st = ttk.LabelFrame(self.root, text="Stile")
+        st = ttk.LabelFrame(self.root, text=T("Stile"))
         st.pack(fill="x", padx=6, pady=3)
         r1 = ttk.Frame(st)
         r1.pack(fill="x", padx=4, pady=2)
-        ttk.Label(r1, text="Stile rapido").pack(side="left")
+        ttk.Label(r1, text=T("Stile rapido")).pack(side="left")
         self.var_quick = tk.StringVar(value="")
-        cq = ttk.Combobox(r1, textvariable=self.var_quick, values=list(E.QUICK_STYLES), state="readonly", width=24)
+        cq = self._combo(r1, self.var_quick, list(E.QUICK_STYLES), 24)
         cq.pack(side="left", padx=(4, 12))
-        cq.bind("<<ComboboxSelected>>", lambda e: self.apply_quick())
-        ttk.Label(r1, text="Carattere").pack(side="left")
+        cq.bind("<<ComboboxSelected>>", lambda e: self.apply_quick(), add="+")
+        ttk.Label(r1, text=T("Carattere")).pack(side="left")
         self.var_font = tk.StringVar(value="Sans grassetto")
         self.cmb_font = ttk.Combobox(r1, textvariable=self.var_font, values=E.font_names(), width=30)
         self.cmb_font.pack(side="left", padx=(4, 12))
         self.cmb_font.bind("<KeyRelease>", self._filter_fonts)
-        ttk.Label(r1, text="Dimensione (0 = automatica)").pack(side="left")
+        ttk.Label(r1, text=T("Dimensione (0 = automatica)")).pack(side="left")
         self.var_size = tk.IntVar(value=0)
         ttk.Spinbox(r1, from_=0, to=80, width=4, textvariable=self.var_size).pack(side="left", padx=(4, 12))
-        ttk.Label(r1, text="Allinea").pack(side="left")
+        ttk.Label(r1, text=T("Allinea")).pack(side="left")
         self.var_align = tk.StringVar(value="Centro")
-        ttk.Combobox(r1, textvariable=self.var_align, values=E.ALIGNS, state="readonly", width=8).pack(side="left", padx=4)
+        self._combo(r1, self.var_align, E.ALIGNS, 8).pack(side="left", padx=4)
 
         r2 = ttk.Frame(st)
         r2.pack(fill="x", padx=4, pady=2)
@@ -601,32 +650,32 @@ class App:
         for txt, v in (("Corsivo", self.var_italic), ("Sottolineato", self.var_underline),
                        ("Barrato", self.var_strike), ("Solo contorno", self.var_outline),
                        ("Bianco su nero", self.var_invert)):
-            ttk.Checkbutton(r2, text=txt, variable=v).pack(side="left", padx=(0, 10))
-        ttk.Label(r2, text="Spazio lettere").pack(side="left")
+            ttk.Checkbutton(r2, text=T(txt), variable=v).pack(side="left", padx=(0, 10))
+        ttk.Label(r2, text=T("Spazio lettere")).pack(side="left")
         self.var_spacing = tk.IntVar(value=0)
         ttk.Spinbox(r2, from_=-3, to=15, width=4, textvariable=self.var_spacing).pack(side="left", padx=(4, 10))
-        ttk.Label(r2, text="Interlinea").pack(side="left")
+        ttk.Label(r2, text=T("Interlinea")).pack(side="left")
         self.var_linegap = tk.IntVar(value=1)
         ttk.Spinbox(r2, from_=-2, to=8, width=4, textvariable=self.var_linegap).pack(side="left", padx=4)
 
         r3 = ttk.Frame(st)
         r3.pack(fill="x", padx=4, pady=(2, 4))
-        ttk.Label(r3, text="Cornice").pack(side="left")
+        ttk.Label(r3, text=T("Cornice")).pack(side="left")
         self.var_frame = tk.StringVar(value="Nessuna")
-        ttk.Combobox(r3, textvariable=self.var_frame, values=E.FRAMES, state="readonly", width=12).pack(side="left", padx=(4, 10))
-        ttk.Label(r3, text="Emoji").pack(side="left")
+        self._combo(r3, self.var_frame, E.FRAMES, 12).pack(side="left", padx=(4, 10))
+        ttk.Label(r3, text=T("Emoji")).pack(side="left")
         self.var_emoji = tk.StringVar(value="Dettagliate")
-        ttk.Combobox(r3, textvariable=self.var_emoji, values=E.EMOJI_MODES, state="readonly", width=14).pack(side="left", padx=(4, 10))
-        ttk.Label(r3, text="Margini").pack(side="left")
+        self._combo(r3, self.var_emoji, E.EMOJI_MODES, 16).pack(side="left", padx=(4, 10))
+        ttk.Label(r3, text=T("Margini")).pack(side="left")
         self.var_margin = tk.IntVar(value=8)
         ttk.Spinbox(r3, from_=0, to=200, width=4, textvariable=self.var_margin).pack(side="left", padx=(4, 10))
-        ttk.Label(r3, text="Ripeti (cavi)").pack(side="left")
+        ttk.Label(r3, text=T("Ripeti (cavi)")).pack(side="left")
         self.var_repeat = tk.IntVar(value=1)
         ttk.Spinbox(r3, from_=1, to=10, width=3, textvariable=self.var_repeat).pack(side="left", padx=(4, 10))
-        ttk.Label(r3, text="Lunghezza fissa mm (0 = auto)").pack(side="left")
+        ttk.Label(r3, text=T("Lunghezza fissa mm (0 = auto)")).pack(side="left")
         self.var_length = tk.StringVar(value="0")
         ttk.Spinbox(r3, from_=0, to=500, width=5, textvariable=self.var_length).pack(side="left", padx=(4, 10))
-        ttk.Label(r3, text="Allarga").pack(side="left")
+        ttk.Label(r3, text=T("Allarga")).pack(side="left")
         self.var_stretch = tk.IntVar(value=1)
         ttk.Spinbox(r3, from_=1, to=4, width=3, textvariable=self.var_stretch).pack(side="left", padx=4)
 
@@ -639,21 +688,21 @@ class App:
     def _print_panel(self):
         op = ttk.Frame(self.root)
         op.pack(fill="x", padx=6, pady=3)
-        ttk.Label(op, text="Copie").pack(side="left")
+        ttk.Label(op, text=T("Copie")).pack(side="left")
         self.var_copies = tk.IntVar(value=1)
         ttk.Spinbox(op, from_=1, to=99, width=4, textvariable=self.var_copies).pack(side="left", padx=(4, 14))
-        ttk.Label(op, text="Numero {n}: parti da").pack(side="left")
+        ttk.Label(op, text=T("Numero {n}: parti da")).pack(side="left")
         self.var_n_start = tk.IntVar(value=1)
         ttk.Spinbox(op, from_=0, to=99999, width=6, textvariable=self.var_n_start).pack(side="left", padx=4)
-        ttk.Label(op, text="passo").pack(side="left")
+        ttk.Label(op, text=T("passo")).pack(side="left")
         self.var_n_step = tk.IntVar(value=1)
         ttk.Spinbox(op, from_=1, to=100, width=4, textvariable=self.var_n_step).pack(side="left", padx=4)
-        ttk.Label(op, text="cifre").pack(side="left")
+        ttk.Label(op, text=T("cifre")).pack(side="left")
         self.var_n_digits = tk.IntVar(value=0)
         ttk.Spinbox(op, from_=0, to=6, width=3, textvariable=self.var_n_digits).pack(side="left", padx=4)
         style = ttk.Style()
         style.configure("Big.TButton", font=("Segoe UI", 12, "bold"), padding=(18, 6))
-        self.btn_print = ttk.Button(op, text="🖨  STAMPA", style="Big.TButton", command=self.print_current)
+        self.btn_print = ttk.Button(op, text=T("🖨  STAMPA"), style="Big.TButton", command=self.print_current)
         self.btn_print.pack(side="right")
         self.lbl_len = ttk.Label(op, text="", font=("Segoe UI", 10, "bold"))
         self.lbl_len.pack(side="right", padx=12)
@@ -717,22 +766,22 @@ class App:
         return out
 
     def import_list(self):
-        p = filedialog.askopenfilename(title="Importa elenco", filetypes=[
-            ("Fogli di calcolo", "*.ods *.csv *.xlsx *.txt"), ("Tutti", "*.*")])
+        p = filedialog.askopenfilename(title=T("Importa elenco"), filetypes=[
+            (T("Fogli di calcolo"), "*.ods *.csv *.xlsx *.txt"), (T("Tutti"), "*.*")])
         if not p:
             return
         try:
             rows = core.read_sheet(p)
         except Exception as e:  # noqa: BLE001
-            messagebox.showerror(APP_TITLE, f"Impossibile leggere il file:\n{e}")
+            messagebox.showerror(APP_TITLE, T("Impossibile leggere il file:\n{e}").format(e=e))
             return
         lines = [" | ".join(c.strip() for c in r if c.strip()) for r in rows]
         lines = [l for l in lines if l]
-        if lines and messagebox.askyesno(APP_TITLE, f"La prima riga è un'intestazione?\n\n«{lines[0]}»"):
+        if lines and messagebox.askyesno(APP_TITLE, T("La prima riga è un'intestazione?\n\n«{r}»").format(r=lines[0])):
             lines = lines[1:]
         self.txt_list.delete("1.0", "end")
         self.txt_list.insert("1.0", "\n".join(lines))
-        self.log(f"Importate {len(lines)} etichette da {os.path.basename(p)}")
+        self.log(T("Importate {n} etichette da {f}").format(n=len(lines), f=os.path.basename(p)))
         self._schedule_preview()
 
     def paste_list(self):
@@ -747,8 +796,8 @@ class App:
 
     # ========================================================= immagini
     def open_image(self):
-        p = filedialog.askopenfilename(title="Apri PDF o immagine", filetypes=[
-            ("PDF e immagini", "*.pdf *.png *.jpg *.jpeg *.bmp *.gif *.tif *.tiff"), ("Tutti", "*.*")])
+        p = filedialog.askopenfilename(title=T("Apri PDF o immagine"), filetypes=[
+            (T("PDF e immagini"), "*.pdf *.png *.jpg *.jpeg *.bmp *.gif *.tif *.tiff"), (T("Tutti"), "*.*")])
         if not p:
             return
         self.image_path, self.image_cache = p, None
@@ -795,8 +844,8 @@ class App:
             return imgs, len(imgs), {"tipo": "testo", "testo": text}
         if tab == 1:
             items = self.list_items()
-            self.lbl_list.configure(text=f"{len(items)} etichette · una per riga · usa  |  per andare a capo "
-                                         "(es. «Sale | {data}»)")
+            self.lbl_list.configure(text=T("{n} etichette · una per riga · usa  |  per andare a capo "
+                                           "(es. «Sale | {data}»)").replace("{n}", str(len(items))))
             if not items:
                 return [], 0, None
             if preview:
@@ -856,12 +905,12 @@ class App:
             return
         tab = self.nb.index(self.nb.select())
         if tab == 1 and total:
-            self.lbl_pv.configure(text=f"{self.preview_index + 1} di {total}")
+            self.lbl_pv.configure(text=T("{i} di {n}").format(i=self.preview_index + 1, n=total))
         else:
             self.lbl_pv.configure(text="")
         if not imgs:
             c.delete("all")
-            c.create_text(10, 40, anchor="w", text="(niente da stampare)", fill="#777")
+            c.create_text(10, 40, anchor="w", text=T("(niente da stampare)"), fill="#777")
             self.lbl_len.configure(text="")
             return
         self._show_preview_image(imgs[0])
@@ -879,7 +928,7 @@ class App:
         c.create_image(10, 10, anchor="nw", image=self._preview_photo)
         c.configure(scrollregion=(0, 0, tape.width + 24, tape.height + 24))
         mm = mono.width / (self._float(self.var_dots, 7.87) or 7.87)
-        self.lbl_len.configure(text=f"Lunghezza ≈ {mm:.0f} mm")
+        self.lbl_len.configure(text=T("Lunghezza ≈ {mm} mm").format(mm=f"{mm:.0f}"))
 
     # =========================================================== salvate
     def _item_title(self, it):
@@ -913,15 +962,15 @@ class App:
     def save_favorite(self):
         info = self._current_item()
         if not info:
-            messagebox.showinfo(APP_TITLE, "Si possono salvare testo, elenchi e codici.")
+            messagebox.showinfo(APP_TITLE, T("Si possono salvare testo, elenchi e codici."))
             return
-        name = simpledialog.askstring(APP_TITLE, "Nome per questa etichetta (facoltativo):", parent=self.root)
+        name = simpledialog.askstring(APP_TITLE, T("Nome per questa etichetta (facoltativo):"), parent=self.root)
         if name is None:
             return
         self.saved.append({**info, "nome": name.strip(), "stile": self.style()})
         self._save_json("preferiti.json", self.saved)
         self._refresh_saved()
-        self.banner("⭐ Salvata nei preferiti (scheda «Salvate»).", "ok")
+        self.banner(T("⭐ Salvata nei preferiti (scheda «Salvate»)."), "ok")
 
     def _add_history(self, info):
         if not info:
@@ -939,7 +988,7 @@ class App:
         lb = self.lst_fav if src == "fav" else self.lst_hist
         sel = lb.curselection()
         if not sel:
-            messagebox.showinfo(APP_TITLE, "Seleziona prima un'etichetta dall'elenco.")
+            messagebox.showinfo(APP_TITLE, T("Seleziona prima un'etichetta dall'elenco."))
             return None, None
         i = sel[0]
         if src == "hist":
@@ -975,7 +1024,7 @@ class App:
         it, i = self._selected_saved(src)
         if it is None:
             return
-        if not messagebox.askyesno(APP_TITLE, "Eliminare questa etichetta dall'elenco?"):
+        if not messagebox.askyesno(APP_TITLE, T("Eliminare questa etichetta dall'elenco?")):
             return
         if src == "fav":
             del self.saved[i]
@@ -992,46 +1041,45 @@ class App:
         except Exception:
             imgs = []
         if not imgs:
-            messagebox.showinfo(APP_TITLE, "Prepara prima un'etichetta (scheda Testo).")
+            messagebox.showinfo(APP_TITLE, T("Prepara prima un'etichetta (scheda Testo)."))
             return
         px = imgs[0].width
-        mm = simpledialog.askfloat(APP_TITLE, f"Stampa l'etichetta che vedi in anteprima, misurala col "
-                                   f"righello\n(solo la parte stampata da bordo a bordo) e scrivi i mm:",
+        mm = simpledialog.askfloat(APP_TITLE, T("Stampa l'etichetta che vedi in anteprima, misurala col righello\n"
+                                                "(solo la parte stampata da bordo a bordo) e scrivi i mm:"),
                                    parent=self.root, minvalue=5, maxvalue=2000)
         if mm:
             self.var_dots.set(f"{px / mm:.2f}")
-            self.log(f"Calibrazione: {px / mm:.2f} punti/mm")
+            self.log(T("Calibrazione: {v} punti/mm").format(v=f"{px / mm:.2f}"))
 
     # =========================================================== bluetooth
     def _set_status(self):
         if self.ble.connected:
             name = getattr(self.ble.device, "name", "") or "LetraTag"
-            self.lbl_status.configure(text=f"● Collegata: {name}", foreground="#080")
-            self.btn_conn.configure(text="Disconnetti")
+            self.lbl_status.configure(text=T("● Collegata: {n}").format(n=name), foreground="#080")
+            self.btn_conn.configure(text=T("Disconnetti"))
         else:
-            self.lbl_status.configure(text="● Non collegata", foreground="#b00")
-            self.btn_conn.configure(text="Connetti")
+            self.lbl_status.configure(text=T("● Non collegata"), foreground="#b00")
+            self.btn_conn.configure(text=T("Connetti"))
 
     def auto_connect(self):
         if self.ble.connected or self.busy:
             return
-        self.banner("Cerco la LetraTag… (accendila)", "info")
+        self.banner(T("Cerco la LetraTag… (accendila)"), "info")
 
         def done(_):
             self._set_status()
-            self.banner("✅ Pronta a stampare.", "ok")
+            self.banner(T("✅ Pronta a stampare."), "ok")
 
         def err(e):
             self._set_status()
-            self.banner("⚠ LetraTag non trovata: accendila e chiudi l'app DYMO sul telefono. "
-                        "Riprovo da sola quando stampi.", "warn")
+            self.banner(T("⚠ LetraTag non trovata: accendila e chiudi l'app DYMO sul telefono. Riprovo da sola quando stampi."), "warn")
 
         self.runner.submit(self.ble.ensure_connected(
-            log=lambda m: self.root.after(0, lambda: self.log(m)), attempts=2), done, err)
+            log=lambda m: self.root.after(0, lambda: self.log(T(m))), attempts=2), done, err)
 
     def scan(self):
         self.btn_scan.configure(state="disabled")
-        self.log("Ricerca stampanti Bluetooth (8 s)…")
+        self.log(T("Ricerca stampanti Bluetooth (8 s)…"))
 
         def done(devs):
             self.btn_scan.configure(state="normal")
@@ -1039,19 +1087,19 @@ class App:
             self.cmb_dev.configure(values=[f"{d.name or 'LetraTag'}  [{d.address}]" for d in devs])
             if devs:
                 self.cmb_dev.current(0)
-                self.log(f"Trovate {len(devs)} stampanti.")
+                self.log(T("Trovate {n} stampanti.").format(n=len(devs)))
             else:
-                self.log("Nessuna LetraTag trovata. È accesa? L'app DYMO sul telefono è chiusa?")
+                self.log(T("Nessuna LetraTag trovata. È accesa? L'app DYMO sul telefono è chiusa?"))
 
         def err(e):
             self.btn_scan.configure(state="normal")
-            self.log(f"Errore Bluetooth: {e}")
+            self.log(T("Errore Bluetooth: {e}").format(e=e))
 
         self.runner.submit(self.ble.scan(8.0), done, err)
 
     def toggle_connect(self):
         if self.ble.connected:
-            self.runner.submit(self.ble.disconnect(), lambda r: (self._set_status(), self.log("Disconnessa.")))
+            self.runner.submit(self.ble.disconnect(), lambda r: (self._set_status(), self.log(T("Disconnessa."))))
             return
         i = self.cmb_dev.current()
         if i < 0 or i >= len(self.devices):
@@ -1062,12 +1110,12 @@ class App:
         def done(_):
             self.btn_conn.configure(state="normal")
             self._set_status()
-            self.banner("✅ Pronta a stampare.", "ok")
+            self.banner(T("✅ Pronta a stampare."), "ok")
 
         def err(e):
             self.btn_conn.configure(state="normal")
             self._set_status()
-            self.log(f"Connessione fallita: {e}")
+            self.log(T("Connessione fallita: {e}").format(e=e))
 
         self.runner.submit(self.ble.connect(self.devices[i]), done, err)
 
@@ -1081,9 +1129,9 @@ class App:
             messagebox.showerror(APP_TITLE, str(e))
             return
         if not imgs:
-            messagebox.showinfo(APP_TITLE, "Niente da stampare.")
+            messagebox.showinfo(APP_TITLE, T("Niente da stampare."))
             return
-        if total > 20 and not messagebox.askyesno(APP_TITLE, f"Stampo {total} etichette?"):
+        if total > 20 and not messagebox.askyesno(APP_TITLE, T("Stampo {n} etichette?").format(n=total)):
             return
         self._print_images(imgs, done_cb=lambda: self._add_history(info))
 
@@ -1094,21 +1142,21 @@ class App:
         self.btn_print.configure(state="disabled")
         tot = len(jobs)
         plural = "a" if tot == 1 else "e"
-        self.log(f"Invio {tot} etichett{plural}…")
-        self.banner(f"🖨  Stampo {tot} etichett{plural}…", "info")
+        self.log(T("Invio {n} etichette…").format(n=tot))
+        self.banner(T("🖨  Stampo {n} etichette…").format(n=tot), "info")
         ui = lambda f: self.root.after(0, f)  # noqa: E731
 
         async def run():
             if not self.ble.connected:
-                ui(lambda: self.banner("🔍 Cerco la LetraTag… accendila.", "info"))
-                await self.ble.ensure_connected(log=lambda m: ui(lambda: self.log(m)))
+                ui(lambda: self.banner(T("🔍 Cerco la LetraTag… accendila."), "info"))
+                await self.ble.ensure_connected(log=lambda m: ui(lambda: self.log(T(m))))
                 ui(self._set_status)
             results = []
             for n, img in enumerate(jobs, 1):
-                ui(lambda n=n: self.banner(f"🖨  Stampo {n} di {tot}…", "info"))
+                ui(lambda n=n: self.banner(T("🖨  Stampo {i} di {n}…").format(i=n, n=tot), "info"))
                 res = await self.ble.print_canvas(core.image_to_canvas(img))
                 results.append(res)
-                ui(lambda n=n, r=res: self.log(f"  {n}/{tot}: {r}"))
+                ui(lambda n=n, r=res: self.log(f"  {n}/{tot}: {T(r)}"))
                 if core.is_error(res):
                     break
                 await asyncio.sleep(1.0)
@@ -1119,12 +1167,12 @@ class App:
             self.btn_print.configure(state="normal")
             self._set_status()
             if results and core.is_error(results[-1]):
-                self.banner(f"⚠ Stampa interrotta: {results[-1]}", "err")
+                self.banner(T("⚠ Stampa interrotta: {e}").format(e=T(results[-1])), "err")
                 self.show_window()
                 if fail_cb:
                     fail_cb(results[-1], fatal=True)
                 return
-            self.banner(f"✅ Fatto! Stampat{plural} {tot} etichett{plural}.", "ok")
+            self.banner(T("✅ Fatto! Stampate {n} etichette.").format(n=tot), "ok")
             if done_cb:
                 done_cb()
 
@@ -1132,17 +1180,17 @@ class App:
             self.busy = False
             self.btn_print.configure(state="normal")
             self._set_status()
-            self.log(f"Errore di stampa: {e}")
+            self.log(T("Errore di stampa: {e}").format(e=e))
             if isinstance(e, core.PrinterNotFound):
-                self.banner("⚠ Non trovo la LetraTag. Accendila, avvicinala al PC e chiudi l'app DYMO "
-                            "sul telefono." + (" Riprovo tra 20 secondi…" if fail_cb else ""), "warn")
+                self.banner(T("⚠ Non trovo la LetraTag. Accendila, avvicinala al PC e chiudi l'app DYMO sul telefono.")
+                            + (T(" Riprovo tra 20 secondi…") if fail_cb else ""), "warn")
             else:
-                self.banner(f"⚠ Errore di stampa: {e}", "err")
+                self.banner(T("⚠ Errore di stampa: {e}").format(e=e), "err")
             self.show_window()
             if fail_cb:
                 fail_cb(str(e), fatal=False)
             elif not auto and not isinstance(e, core.PrinterNotFound):
-                messagebox.showerror(APP_TITLE, f"Errore di stampa:\n{e}")
+                messagebox.showerror(APP_TITLE, T("Errore di stampa:\n{e}").format(e=e))
 
         self.runner.submit(run(), done, err)
 
@@ -1208,7 +1256,7 @@ class App:
             pass
 
     def _print_queue_file(self, path):
-        self.log(f"Da LibreOffice/OpenOffice: {os.path.basename(path)}")
+        self.log(T("Da LibreOffice/OpenOffice: {f}").format(f=os.path.basename(path)))
         self.show_window()
         try:
             labels = []
@@ -1222,11 +1270,11 @@ class App:
                                          rotate=int(self.var_rot.get() or 0))
                     labels.append(self._mono(img, self.var_dither.get(), self._int(self.var_thr, 160)))
         except Exception as e:  # noqa: BLE001
-            self.banner(f"⚠ Non riesco a leggere quello che hai mandato: {e}", "err")
+            self.banner(T("⚠ Non riesco a leggere quello che hai mandato: {e}").format(e=e), "err")
             self._move(path, "errori")
             return
         if not labels:
-            self.banner("⚠ Niente da stampare: le celle o il testo selezionati sono vuoti.", "warn")
+            self.banner(T("⚠ Niente da stampare: le celle o il testo selezionati sono vuoti."), "warn")
             self._move(path, "errori")
             return
         self._show_preview_image(labels[0])
@@ -1273,6 +1321,7 @@ class App:
         try:
             data = {k: getattr(self, k).get() for k in self.SETTINGS}
             data["stile"] = self.style()
+            data["lingua"] = lingua.LANG
             data["testo"] = self.txt_input.get("1.0", "end").rstrip("\n")
             with open(self._settings_path(), "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False)
@@ -1281,7 +1330,7 @@ class App:
 
     def _on_close(self):
         if getattr(self, "updating", False):
-            messagebox.showinfo(APP_TITLE, "Aspetta: sto finendo l'aggiornamento.")
+            messagebox.showinfo(APP_TITLE, T("Aspetta: sto finendo l'aggiornamento."))
             return
         pending = [f for f in os.listdir(self.qdir) if f.lower().endswith(core.QUEUE_EXTS)]
         if pending and not messagebox.askyesno(
@@ -1327,6 +1376,7 @@ def main():
         sys.stdout = sys.stderr = log
     if already_running():
         return
+    lingua.carica(core.base_dir())
     root = tk.Tk()
     try:
         ttk.Style().theme_use("vista" if sys.platform == "win32" else "clam")

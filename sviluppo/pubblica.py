@@ -1,7 +1,7 @@
 """
 Prepara una nuova versione da pubblicare.
 
-Uso:  python sviluppo/pubblica.py 2.1.0 "Cosa c'è di nuovo"
+Uso:  python sviluppo/pubblica.py 2.1.0 "Cosa c'è di nuovo" ["What's new"]
 Ricostruisce il pulsante di OpenOffice, poi scrive programma/versione.json con le impronte
 SHA-256 di tutti i file. Dopo basta fare commit e push: le app installate vedono
 la nuova versione e la scaricano col pulsante «Aggiorna».
@@ -20,6 +20,7 @@ if len(sys.argv) < 2:
     sys.exit(__doc__)
 versione = sys.argv[1]
 note = sys.argv[2] if len(sys.argv) > 2 else ""
+note_en = sys.argv[3] if len(sys.argv) > 3 else ""
 
 subprocess.run([sys.executable, os.path.join(QUI, "build_oxt.py"), QUI], check=True)
 import zipfile
@@ -53,5 +54,5 @@ for n in sorted(os.listdir(PROG)):
         file[n] = hashlib.sha256(fh.read()).hexdigest()
 
 with open(os.path.join(PROG, "versione.json"), "w", encoding="utf-8") as fh:
-    json.dump({"versione": versione, "note": note, "file": file}, fh, ensure_ascii=False, indent=1)
+    json.dump({"versione": versione, "note": note, "note_en": note_en, "file": file}, fh, ensure_ascii=False, indent=1)
 print(f"versione {versione}: {len(file)} file")
