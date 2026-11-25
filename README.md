@@ -16,6 +16,7 @@ App per PC Windows che stampa etichette con la **DYMO LetraTag 200B** via Blueto
 - Data automatica, numerazione (Scatola 1, 2, 3…), etichette ripetute per i cavi, lunghezza fissa
 - Elenchi da Calc, Excel o CSV, QR code e codici a barre
 - Preferiti e cronologia
+- Interfaccia in italiano o inglese (menu 🌐)
 - Pulsante «Stampa su LetraTag» dentro LibreOffice e OpenOffice
 - Pulsante **🔄 Aggiorna**: le nuove versioni arrivano da questo repository
 
@@ -81,7 +82,7 @@ DYMO only offers a mobile app for this printer; this project adds a full desktop
 - A "Print to LetraTag" button inside LibreOffice and OpenOffice
 - One-click **Update** button: new versions are downloaded from this repository and verified with SHA-256
 
-The user interface is in Italian.
+The interface is available in Italian and English (🌐 menu at the top right).
 
 ### Install
 1. Install [Python 3.10+](https://www.python.org/downloads/) (tick *Add python.exe to PATH*).
